@@ -1,6 +1,6 @@
-function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strOutputFile)
+function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording)
 	%InitSGL Initializes SGL
-	%   [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strOutputFile)
+	%   [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording)
 	
 	% Create connection (edit the IP address)
 	hSGL = SpikeGL('127.0.0.1');
@@ -16,7 +16,7 @@ function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strOutputFile)
 		boolAccepted = false;
 		while ~boolAccepted
 			intBlock = intBlock + 1;
-			strRunName = strcat(strOutputFile,sprintf('R%02d',intBlock));
+			strRunName = strcat('Rec',strRecording,'_',getDate,sprintf('R%02d',intBlock));
 			try
 				SetRunName(hSGL, strRunName);
 				boolAccepted = true;
@@ -28,14 +28,12 @@ function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strOutputFile)
 			end
 		end
 	else
-		intBlock = 1;
-		strRunName = strcat(strOutputFile,sprintf('R%02d',intBlock));
+		strRunName = GetRunName(hSGL);
 	end
 	
 	%set meta data, can be anything, as long as it's a numeric scalar or string
 	sMeta = struct();
 	strTime = strrep(getTime,':','_');
-	strRunName = strcat(strRunName,'_',strTime);
 	strMetaField = sprintf('recording_%s',strTime);
 	sMeta.(strMetaField) = strRecording;
 	SetMetaData(hSGL, sMeta);
