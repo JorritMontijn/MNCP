@@ -1,9 +1,14 @@
-function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording)
+function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strHostAddress)
 	%InitSGL Initializes SGL
-	%   [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording)
+	%   [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strHostAddress)
+	
+	%check input
+	if nargin < 2 || isempty(strHostAddress)
+		strHostAddress = '127.0.0.1';%'192.87.10.238'
+	end
 	
 	% Create connection (edit the IP address)
-	hSGL = SpikeGL('127.0.0.1');
+	hSGL = SpikeGL(strHostAddress);
 	
 	%retrieve channels to save
 	warning('off','CalinsNetMex:connectionClosed');
