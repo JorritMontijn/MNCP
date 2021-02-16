@@ -1,10 +1,13 @@
-function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strHostAddress)
+function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strHostAddress,boolStart)
 	%InitSGL Initializes SGL
-	%   [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strHostAddress)
+	%   [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strHostAddress,boolStart)
 	
 	%check input
 	if nargin < 2 || isempty(strHostAddress)
 		strHostAddress = '127.0.0.1';%'192.87.10.238'
+	end
+	if nargin < 3 || isempty(boolStart)
+		boolStart = true;
 	end
 	
 	% Create connection (edit the IP address)
@@ -54,16 +57,19 @@ function [hSGL,strRunName,sParamsSGL] = InitSGL(strRecording,strHostAddress)
 	[cellSN,vecType] = GetImProbeSN(hSGL, vecStreamIM(1));
 	sParamsSGL.cellSN = cellSN;
 	
-	%start recording if not already recording
-	if ~IsSaving(hSGL)
-		SetRecordingEnable(hSGL, 1);
+	%start recording if requested & not already recording
+	if boolStart
+		if ~IsSaving(hSGL)
+			SetRecordingEnable(hSGL, 1);
+		end
+		hTicStart = tic;
+		
+		%check if output is being saved
+		while ~IsSaving(hSGL) && toc(hTicStart) < 1
+			pause(0.01);
+		end
+		if ~IsSaving(hSGL)
+			error([mfilename ':NotSaving'],'Data is not being saved!')
+		end
 	end
-	hTicStart = tic;
-	
-	%check if output is being saved
-	while ~IsSaving(hSGL) && toc(hTicStart) < 1
-		pause(0.01);
-	end
-	if ~IsSaving(hSGL)
-		error([mfilename ':NotSaving'],'Data is not being saved!')
-	end
+end
